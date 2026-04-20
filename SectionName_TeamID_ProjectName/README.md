@@ -1,1 +1,0 @@
-# SectionName_TeamID_ProjectName

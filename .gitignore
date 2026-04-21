@@ -26,3 +26,4 @@ reports/cleaning_report.csv
 # IDE specific files
 .vscode/
 .idea/
+data/raw_data.csv

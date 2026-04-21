@@ -7,3 +7,4 @@ statsmodels
 notebook
 nbconvert
 ipykernel
+scikit-learn

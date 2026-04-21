@@ -16,7 +16,6 @@ ENV/
 # Data (Raw and Large subsets)
 # We usually ignore the massive raw data files
 data/raw_data.csv
-data/extracted_subset_80k.csv
 
 # Keep the clean data for BI tools, OR ignore if you want to regenerate it every time:
 # data/clean_data.csv

@@ -12,7 +12,7 @@ This project performs an end-to-end analysis of US Real Estate listings (Zillow-
 SectionD_G8_US_Real_Estate_Analysis/
 ├── data/
 │   ├── raw_data.csv                 # Original raw dataset (~600k rows, 28 columns)
-│   ├── extracted_subset_80k.csv     # Representative 80k sample
+│   ├── raw_extracted_data.csv     # Representative 80k sample
 │   └── clean_data.csv              # FINAL cleaned dataset (59,581 rows, 19 columns)
 ├── notebooks/
 │   ├── 01_extraction.ipynb          # Data loading, profiling, sampling
@@ -101,7 +101,7 @@ python scripts/etl_pipeline.py
 | Zero-price removal | `price == 0` | Listings with $0 price are data-entry errors or unlisted properties |
 | Placeholder ZIP removal | `postcode == '11111'` | Dummy postcode indicating missing/invalid address data |
 
-After filtering, **80,000 rows** were randomly sampled using `random_state=42` for full reproducibility.
+After filtering, **80,000 rows** were randomly sampled and saved as `raw_extracted_data.csv` using `random_state=42` for full reproducibility.
 
 ### Step 1: Row Filtering — Remove LOTs
 

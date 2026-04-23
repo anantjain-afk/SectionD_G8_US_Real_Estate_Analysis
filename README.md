@@ -11,20 +11,22 @@ This project performs an end-to-end analysis of US Real Estate listings (Zillow-
 ```
 SectionD_G8_US_Real_Estate_Analysis/
 ├── data/
-│   ├── raw_data.csv                 # Original raw dataset (~600k rows, 28 columns)
-│   ├── raw_extracted_data.csv     # Representative 80k sample
-│   └── clean_data.csv              # FINAL cleaned dataset (59,581 rows, 19 columns)
+│   ├── raw/                 # Original and sampled raw data
+│   │   ├── raw_data.csv     # Original dataset (~600k rows)
+│   │   └── raw_extracted_data.csv # Representative 80k sample
+│   └── processed/           # FINAL cleaned dataset
+│       └── clean_data.csv   # analytical-ready (59,581 rows)
 ├── notebooks/
-│   ├── 01_extraction.ipynb          # Data loading, profiling, sampling
-│   ├── 02_cleaning.ipynb            # Step-by-step cleaning with formulas
-│   ├── 03_eda.ipynb                 # Exploratory analysis & visualizations
+│   ├── 01_extraction.ipynb  # Data loading, profiling, sampling
+│   ├── 02_cleaning.ipynb    # Step-by-step cleaning with formulas
+│   ├── 03_eda.ipynb         # Exploratory analysis & visualizations
 │   ├── 04_statistical_analysis.ipynb # Hypothesis tests & regression models
 │   └── 05_final_load_prep.ipynb     # Final audit & Tableau readiness
 ├── scripts/
-│   └── etl_pipeline.py             # Thin orchestrator — runs notebooks 01 & 02 in sequence
+│   └── etl_pipeline.py      # Robust orchestrator — runs notebooks 01 & 02 in sequence
 ├── reports/
-│   └── cleaning_report.csv         # Step-by-step cleaning log
-├── tableau/                        # Reserved for BI exports
+│   └── cleaning_report.csv  # Step-by-step cleaning log
+├── tableau/                 # Reserved for BI exports
 ├── requirements.txt
 └── README.md
 ```
@@ -101,7 +103,7 @@ python scripts/etl_pipeline.py
 | Zero-price removal | `price == 0` | Listings with $0 price are data-entry errors or unlisted properties |
 | Placeholder ZIP removal | `postcode == '11111'` | Dummy postcode indicating missing/invalid address data |
 
-After filtering, **80,000 rows** were randomly sampled and saved as `raw_extracted_data.csv` using `random_state=42` for full reproducibility.
+After filtering, **80,000 rows** were randomly sampled and saved to `data/raw/raw_extracted_data.csv` using `random_state=42` for full reproducibility.
 
 ### Step 1: Row Filtering — Remove LOTs
 

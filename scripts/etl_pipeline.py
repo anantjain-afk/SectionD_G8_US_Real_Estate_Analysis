@@ -1,86 +1,115 @@
 """
-ETL Pipeline — Section D, Group 8
-Thin orchestrator that runs the notebooks in sequence.
-All cleaning logic lives in the notebooks themselves.
+US Real Estate ETL Pipeline — Section D, Group 8
+Orchestrator script to execute the data pipeline notebooks in sequence.
 
-Usage:
-    python scripts/etl_pipeline.py
+Structure:
+1. Extraction (Raw -> Interim)
+2. Cleaning (Interim -> Processed)
 """
 
 import os
 import sys
 import logging
+from pathlib import Path
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+# --- Configuration ---
+class Config:
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    NOTEBOOK_DIR = BASE_DIR / "notebooks"
+    DATA_DIR = BASE_DIR / "data"
+    
+    # Tiered Data Paths
+    RAW_DATA = DATA_DIR / "raw" / "raw_data.csv"
+    INTERIM_DATA = DATA_DIR / "raw" / "raw_extracted_data.csv"
+    PROCESSED_DATA = DATA_DIR / "processed" / "clean_data.csv"
+    
+    # Pipeline Sequence
+    NOTEBOOKS = [
+        '01_extraction.ipynb',
+        '02_cleaning.ipynb',
+    ]
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-NOTEBOOK_DIR = os.path.join(BASE_DIR, 'notebooks')
+# --- Logging Setup ---
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.StreamHandler(),
+        logging.FileHandler(Config.BASE_DIR / "etl_run.log")
+    ]
+)
 
-NOTEBOOKS = [
-    '01_extraction.ipynb',
-    '02_cleaning.ipynb',
-]
-
-
-def run_notebook(name):
-    """Execute a notebook in-place using nbconvert API (no CLI dependency)."""
+def run_notebook(notebook_name: str) -> bool:
+    """Execute a notebook in-place using nbconvert."""
     import nbformat
     from nbconvert.preprocessors import ExecutePreprocessor
 
-    path = os.path.join(NOTEBOOK_DIR, name)
-    if not os.path.exists(path):
+    path = Config.NOTEBOOK_DIR / notebook_name
+    if not path.exists():
         logging.error(f"Notebook not found: {path}")
         return False
 
-    logging.info(f"Running {name} ...")
-
-    with open(path, 'r', encoding='utf-8') as f:
-        nb = nbformat.read(f, as_version=4)
-
-    ep = ExecutePreprocessor(timeout=600, kernel_name='python3')
+    logging.info(f"STARTING: {notebook_name}")
 
     try:
-        ep.preprocess(nb, {'metadata': {'path': NOTEBOOK_DIR}})
+        with open(path, 'r', encoding='utf-8') as f:
+            nb = nbformat.read(f, as_version=4)
+
+        ep = ExecutePreprocessor(timeout=1200, kernel_name='python3')
+        ep.preprocess(nb, {'metadata': {'path': str(Config.NOTEBOOK_DIR)}})
+
+        # Save executed notebook (with outputs)
+        with open(path, 'w', encoding='utf-8') as f:
+            nbformat.write(nb, f)
+
+        logging.info(f"COMPLETED: {notebook_name}")
+        return True
     except Exception as e:
-        logging.error(f"{name} FAILED: {e}")
+        logging.error(f"FAILED: {notebook_name} | Error: {str(e)}")
         return False
 
-    # Save executed notebook (with outputs)
-    with open(path, 'w', encoding='utf-8') as f:
-        nbformat.write(nb, f)
+def verify_pipeline():
+    """Perform basic sanity checks on the output data."""
+    import pandas as pd
+    
+    if not Config.PROCESSED_DATA.exists():
+        logging.warning(f"Verification failed: {Config.PROCESSED_DATA} not found.")
+        return
 
-    logging.info(f"{name} completed successfully.")
-    return True
-
+    try:
+        df = pd.read_csv(Config.PROCESSED_DATA)
+        rows, cols = df.shape
+        nulls = df.isnull().sum().sum()
+        
+        logging.info("=" * 30)
+        logging.info("PIPELINE VERIFICATION")
+        logging.info(f"File: {Config.PROCESSED_DATA.name}")
+        logging.info(f"Rows: {rows:,}")
+        logging.info(f"Cols: {cols}")
+        logging.info(f"Nulls: {nulls}")
+        
+        if nulls == 0:
+            logging.info("Status: SUCCESS (Zero Nulls Detected)")
+        else:
+            logging.warning(f"Status: DIRTY ({nulls} Nulls Detected)")
+        logging.info("=" * 30)
+    except Exception as e:
+        logging.error(f"Verification error: {e}")
 
 def main():
-    logging.info("=" * 50)
-    logging.info("ETL Pipeline — US Real Estate Analysis")
-    logging.info("=" * 50)
+    logging.info("=" * 60)
+    logging.info("US REAL ESTATE ETL PIPELINE — EXECUTION STARTED")
+    logging.info("=" * 60)
 
-    for nb in NOTEBOOKS:
-        ok = run_notebook(nb)
-        if not ok:
-            logging.error(f"Pipeline stopped at {nb}")
+    for nb in Config.NOTEBOOKS:
+        success = run_notebook(nb)
+        if not success:
+            logging.error("Pipeline aborted due to notebook failure.")
             sys.exit(1)
 
-    # Quick verification
-    import pandas as pd
-    clean_path = os.path.join(BASE_DIR, 'data', 'clean_data.csv')
-    if os.path.exists(clean_path):
-        df = pd.read_csv(clean_path)
-        nulls = df.isnull().sum().sum()
-        logging.info(f"Verification: {clean_path}")
-        logging.info(f"  Rows: {len(df):,}  Columns: {df.shape[1]}  Nulls: {nulls}")
-    else:
-        logging.warning(f"clean_data.csv not found at {clean_path}")
-
-    logging.info("=" * 50)
-    logging.info("ETL Pipeline complete.")
-    logging.info("=" * 50)
-
+    verify_pipeline()
+    logging.info("ETL PIPELINE COMPLETE.")
+    logging.info("=" * 60)
 
 if __name__ == "__main__":
     main()
-
-

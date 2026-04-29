@@ -1,8 +1,46 @@
-# US Real Estate Analysis — Section D, Group 8
+# US Real Estate Market Analysis — DVA Capstone 2
+
+---
 
 ## Project Overview
 
-This project performs an end-to-end analysis of US Real Estate listings (Zillow-style data). Starting from a raw dataset of ~600,000 rows and 28 columns, it produces a perfectly cleaned, analytical-ready dataset with **0 nulls, 0 infinities, and 0 invalid zeros** across all 19 final columns (59,581 rows). The pipeline focuses exclusively on residential buildings and uses domain-specific hierarchical imputation.
+| Field | Details |
+|---|---|
+| **Project Title** | US Real Estate Market Analysis & Data Integrity Pipeline |
+| **Sector** | Real Estate / PropTech |
+| **Team ID** | _`To be filled by team`_ |
+| **Section** | Section D — Group 8 |
+| **Faculty Mentor** | _`To be filled by team`_ |
+| **Institute** | Newton School of Technology |
+| **Submission Date** | _`To be filled by team`_ |
+
+---
+
+
+## Business Problem
+
+Real Estate is the world's largest asset class, where **Price per Square Foot (PPSF)** is the primary metric for valuation. Portfolio Managers and Real Estate Investors rely on clean, high-integrity data to make million-dollar acquisition decisions. However, publicly scraped listing data (Zillow-style) is notoriously "dirty" — plagued by missing room counts, inconsistent land units (Acres vs. SqFt), and invalid zero-values that make standard analysis unreliable. In our dataset of ~600,000 listings, **25% of key metrics** (bedrooms, bathrooms, living space) were missing or recorded as invalid zeros, creating a massive "Analytical Blind Spot."
+
+**Core Business Question**
+
+> How can investors identify undervalued properties and make accurate "Buy vs. Pass" decisions when 25% of the market data is hidden behind missing or invalid values?
+
+**Decision Supported**
+
+> This analysis enables stakeholders to make **precision market-entry and competitive pricing decisions** by providing a 100% clean dataset (Zero Nulls, Zero Infinities) with reliable PPSF benchmarks across 22 US states.
+
+---
+
+## Dataset
+
+| Attribute | Details |
+|---|---|
+| **Source Name** | Zillow-style US Real Estate Listings (Scraped) |
+| **Direct Access Link** | _`Paste the direct download or access URL`_ |
+| **Row Count** | 600,000 (raw) → 80,000 (sampled) → 59,581 (final clean) |
+| **Column Count** | 28 (raw) → 19 (final clean, all meaningful) |
+| **Time Period Covered** | April 2022 (single scrape snapshot) |
+| **Format** | CSV |
 
 ---
 
@@ -26,7 +64,9 @@ SectionD_G8_US_Real_Estate_Analysis/
 │   └── etl_pipeline.py      # Robust orchestrator — runs notebooks 01 & 02 in sequence
 ├── reports/
 │   └── cleaning_report.csv  # Step-by-step cleaning log
-├── tableau/                 # Reserved for BI exports
+├── tableau/                 # Dashboard screenshots & public links
+├── docs/
+│   └── data_dictionary.md   # Column-level data dictionary
 ├── requirements.txt
 └── README.md
 ```
@@ -55,46 +95,52 @@ python scripts/etl_pipeline.py
 # OR run the notebooks manually in order: 01 → 02 → 03 → 04 → 05
 ```
 
-> **Note:** The ETL pipeline (`etl_pipeline.py`) is a thin orchestrator. It does NOT contain any cleaning logic itself — it simply executes `01_extraction.ipynb` and `02_cleaning.ipynb` programmatically using `nbconvert`. All data transformation code lives in the notebooks.
+> **Note:** The ETL pipeline (`etl_pipeline.py`) is a robust orchestrator with logging, config management, and automated verification. It executes `01_extraction.ipynb` and `02_cleaning.ipynb` programmatically using `nbconvert`. All data transformation code lives in the notebooks.
 
 ---
 
-## Raw Data — Original 28 Columns
+## KPI Framework
 
-| # | Raw Column | Type | Description |
-|---|---|---|---|
-| 1 | `property_url` | string | Listing URL on Zillow |
-| 2 | `property_id` | int | Unique identifier for the listing |
-| 3 | `address` | string | Full address string (e.g. "123 Main St, Austin, TX 78701") |
-| 4 | `street_name` | string | Street name extracted from address |
-| 5 | `apartment` | string | Apartment/unit number (if applicable) |
-| 6 | `city` | string | City name |
-| 7 | `state` | string | US state abbreviation |
-| 8 | `latitude` | float | GPS latitude |
-| 9 | `longitude` | float | GPS longitude |
-| 10 | `postcode` | int/string | ZIP code |
-| 11 | `price` | float | Listing price in USD |
-| 12 | `bedroom_number` | float | Number of bedrooms |
-| 13 | `bathroom_number` | float | Number of bathrooms |
-| 14 | `price_per_unit` | float | Zillow-provided price per unit (inconsistent) |
-| 15 | `living_space` | float | Interior living area in square feet |
-| 16 | `land_space` | float | Total land/lot area |
-| 17 | `land_space_unit` | string | Unit for land_space ("sqft" or "acres") |
-| 18 | `broker_id` | string | Broker identifier |
-| 19 | `property_type` | string | SINGLE_FAMILY, CONDO, TOWNHOUSE, LOT, etc. |
-| 20 | `property_status` | string | FOR_SALE, RECENTLY_SOLD, etc. |
-| 21 | `year_build` | float | Year the property was built |
-| 22 | `total_num_units` | float | Total units (for multi-family) |
-| 23 | `listing_age` | int | Days since the listing was created |
-| 24 | `RunDate` | string | Date the data was scraped |
-| 25 | `agency_name` | string | Listing brokerage name |
-| 26 | `agent_name` | string | Listing agent's name |
-| 27 | `agent_phone` | string | Agent's phone number |
-| 28 | `is_owned_by_zillow` | bool | Whether Zillow owns the property |
+| KPI | Definition | Formula / Computation |
+|---|---|---|
+| Median Price Per SqFt (PPSF) | Primary valuation benchmark normalized across property sizes | `Sale_Price / Living_Space_SqFt` — computed in `03_eda.ipynb` |
+| Data Recovery Rate | Percentage of missing data restored via hierarchical imputation | `(rows_recovered / total_null_rows) × 100` — computed in `02_cleaning.ipynb` |
+| Market Status Ratio | Proportion of listings currently active vs. pending | `count(FOR_SALE) / total_listings` — computed in `03_eda.ipynb` |
+| Median Sale Price (Capped) | Outlier-safe central price tendency per state/city | `Sale_Price.clip(upper=99th_pct).median()` — computed in `03_eda.ipynb` |
+
+Document KPI logic clearly in `notebooks/04_statistical_analysis.ipynb` and `notebooks/05_final_load_prep.ipynb`.
 
 ---
 
-## Complete Cleaning Process — Step by Step
+## Tableau Dashboard
+
+| Item | Details |
+|---|---|
+| **Dashboard URL** | [View on Tableau Public](https://public.tableau.com/app/profile/anant.jain2510/viz/DVA_capstone_tableau/Dashboard1) |
+| **Executive View** | Geographic Market Overview — US map with price heatmap, top 15 states by median price, and scatter map of price hotspots |
+| **Operational View** | Property Analysis — Sale price distribution by type, bedroom-bathroom heatmap, listing status breakdown, and property type pie chart |
+| **Deep Dive View** | Pricing Deep Dive — $/SqFt distribution, agency performance bubbles, land size vs. price scatter, and state-level PPSF ranking |
+| **Main Filters** | State, Property Type, Property Status, Bedrooms (slider), Price range |
+
+Store dashboard screenshots in `tableau/screenshots/` and document the public links in `tableau/dashboard_links.md`.
+
+---
+
+## Analytical Pipeline
+
+The project follows a structured 7-step workflow:
+
+1. **Define** – Sector selected (Real Estate), problem statement scoped, mentor approval obtained.
+2. **Extract** – Raw dataset sourced and committed to `data/raw/`; data dictionary drafted.
+3. **Clean and Transform** – Cleaning pipeline built in `notebooks/02_cleaning.ipynb` and orchestrated via `scripts/etl_pipeline.py`.
+4. **Analyze** – EDA and statistical analysis performed in notebooks `03` and `04`.
+5. **Visualize** – Interactive Tableau dashboard built and published on Tableau Public.
+6. **Recommend** – 3–5 data-backed business recommendations delivered.
+7. **Report** – Final project report and presentation deck completed and exported to PDF in `reports/`.
+
+---
+
+## Data Engineering — Complete Cleaning Process
 
 ### Step 0: Pre-Extraction Filtering (before sampling)
 
@@ -164,7 +210,7 @@ Any remaining nulls after regex were filled with `"Unknown Street"` or `"Unknown
 
 ---
 
-## Step 6–10: Hierarchical Imputation — Column by Column
+## Hierarchical Imputation — Column by Column
 
 ### `Living_Space_SqFt` (originally `living_space`)
 - **Raw nulls after zero-conversion**: ~1,700
@@ -238,28 +284,6 @@ Any remaining nulls after regex were filled with `"Unknown Street"` or `"Unknown
 
 ---
 
-## Step 11: Outlier Capping (99th Percentile)
-
-| Metric | Cap Value | Purpose |
-|---|---|---|
-| `Sale_Price_Capped` | ~$4,598,490 | Prevents $100M+ luxury homes from skewing means/regressions |
-| `Living_Space_Capped` | ~7,192 sqft | Prevents extreme mansions from distorting visualizations |
-
-The raw uncapped values are preserved in `Sale_Price` and `Living_Space_SqFt` for full-range analysis.
-
----
-
-## Step 12: Derived Columns
-
-| Derived Column | Formula | Purpose |
-|---|---|---|
-| `Sale_Price` | Renamed from raw `price` | Clear analytical name |
-| `Sale_Price_Capped` | `Sale_Price.clip(upper=99th_pct)` | Outlier-safe price for visualization |
-| `Living_Space_Capped` | `Living_Space_SqFt.clip(upper=99th_pct)` | Outlier-safe space |
-| `Price_Per_SqFt` | `Sale_Price / Living_Space_SqFt` | Key density metric (replaces Zillow's inconsistent `price_per_unit`) |
-
----
-
 ## Imputation Formula Reference Table
 
 | Target Column | Formula | Grouping | Fallback |
@@ -273,6 +297,28 @@ The raw uncapped values are preserved in `Sale_Price` and `Living_Space_SqFt` fo
 | `street_name` | Regex group 1 from `address` | — | `"Unknown Street"` |
 | `city` | Regex group 2 from `address` | — | `"Unknown City"` |
 | `agency_name` | Direct fill | — | `"Unknown Agency"` |
+
+---
+
+## Outlier Capping (99th Percentile)
+
+| Metric | Cap Value | Purpose |
+|---|---|---|
+| `Sale_Price_Capped` | ~$4,598,490 | Prevents $100M+ luxury homes from skewing means/regressions |
+| `Living_Space_Capped` | ~7,192 sqft | Prevents extreme mansions from distorting visualizations |
+
+The raw uncapped values are preserved in `Sale_Price` and `Living_Space_SqFt` for full-range analysis.
+
+---
+
+## Derived Columns
+
+| Derived Column | Formula | Purpose |
+|---|---|---|
+| `Sale_Price` | Renamed from raw `price` | Clear analytical name |
+| `Sale_Price_Capped` | `Sale_Price.clip(upper=99th_pct)` | Outlier-safe price for visualization |
+| `Living_Space_Capped` | `Living_Space_SqFt.clip(upper=99th_pct)` | Outlier-safe space |
+| `Price_Per_SqFt` | `Sale_Price / Living_Space_SqFt` | Key density metric (replaces Zillow's inconsistent `price_per_unit`) |
 
 ---
 
@@ -304,13 +350,78 @@ The raw uncapped values are preserved in `Sale_Price` and `Living_Space_SqFt` fo
 
 ---
 
-## Dependencies
+## Key EDA Insights
 
-Listed in `requirements.txt`:
-- `pandas` — Data manipulation
-- `numpy` — Numerical operations
-- `matplotlib` — Plotting
-- `seaborn` — Statistical visualization
-- `scipy` — Hypothesis testing
-- `statsmodels` — Regression analysis
-- `notebook` — Jupyter notebook support
+1. **Single-Family Dominance:** 80% of the US residential market is Single-Family homes, making them the most stable investment class.
+2. **Geographic Value Clusters:** California, Hawaii, and Colorado lead in Median Sale Price; cities like Ashton reach extreme density of $70,000+/SqFt.
+3. **The Living Space Correlation:** A 0.7+ positive correlation between Living Space and Sale Price validates PPSF as the primary valuation metric.
+4. **Agency Concentration:** Three agencies (Coldwell Banker, Compass, eXp Realty) dominate listing volume across 22 states.
+
+---
+
+## Advanced Analysis
+
+- **Hypothesis Testing:** Welch's T-Test and Mann-Whitney U confirmed statistically significant price differences between property types (p < 0.05).
+- **Regression Modeling:** OLS and Multiple Linear Regression quantified that each additional SqFt adds a predictable dollar value to sale price.
+- **Market Segmentation (K-Means):** Identified 3 distinct tiers — Budget, Mid-Range, and Luxury — based on price-to-space clustering.
+- **Predictive Forecasting (Random Forest):** Location (Lat/Long) and Living Space explain 70%+ of price variance (R² > 0.7).
+- **Libraries Used:** `scipy`, `statsmodels`, `scikit-learn`.
+
+---
+
+## Business Recommendations
+
+1. **Single-Family First Strategy:**
+   - *Insight:* 80% market share with most stable PPSF benchmarks.
+   - *Action:* Prioritize SFR acquisitions in "Mid-Range" clusters.
+   - *Impact:* Increased portfolio liquidity and reduced valuation risk.
+
+2. **Precision Geo-Targeting:**
+   - *Insight:* Location is a 3x stronger predictor of price than bedroom count.
+   - *Action:* Adopt "Geo-First" screening; flag listings priced 15% below predicted geographic value.
+   - *Impact:* Identification of undervalued "Alpha" opportunities.
+
+3. **Top-3 Agency Partnership:**
+   - *Insight:* Coldwell Banker, Compass, and eXp control the majority of high-quality inventory.
+   - *Action:* Form strategic "Preferred Investor" partnerships with these brokerages.
+   - *Impact:* Early access to pre-listing inventory.
+
+4. **PPSF Discipline in Bidding:**
+   - *Insight:* 0.7+ correlation validates PPSF as the north-star metric.
+   - *Action:* Implement a strict "PPSF Cap" policy; reject properties 1.5 SD above city-median PPSF.
+   - *Impact:* Prevention of overpayment in "bubble" markets.
+
+---
+
+## Tech Stack
+
+| Tool | Status | Purpose |
+|---|---|---|
+| Python + Jupyter Notebooks | Mandatory | ETL, cleaning, analysis, and KPI computation |
+| Google Colab | Supported | Cloud notebook execution environment |
+| Tableau Public | Mandatory | Dashboard design, publishing, and sharing |
+| GitHub | Mandatory | Version control, collaboration, contribution audit |
+| SQL | Optional | Initial data extraction only, if documented |
+
+**Python Libraries:** `pandas`, `numpy`, `matplotlib`, `seaborn`, `scipy`, `statsmodels`, `scikit-learn`, `nbconvert`, `ipykernel`
+
+---
+
+## Contribution Matrix
+
+This table must match evidence in GitHub Insights, PR history, and committed files.
+
+| Team Member | Dataset and Sourcing | ETL and Cleaning | EDA and Analysis | Statistical Analysis | Tableau Dashboard | Report Writing | PPT and Viva |
+|---|---|---|---|---|---|---|---|
+| _`Anant Jain`_ | Owner | - | - | - | Owner | - | - |
+| _`Vipul Sharma`_ | Owner | Owner | Owner | - | - | - | - |
+| _`Prince Singh`_ | - | Owner | - | - | - | - | - |
+| _`Om Chimurkar`_ | - | - | - | Owner | - | - | Owner |
+| _`Deepanshu Sharma`_ | Owner | - | - | - | - | Owner | - |
+| _`Kaustubh Ranjan Sharma`_ | Owner | - | - | - | - | - | - |
+
+*Declaration: We confirm that the above contribution details are accurate and verifiable through GitHub Insights, PR history, and submitted artifacts.*
+
+**Team Lead Name:** Anant Jain
+
+**Date:** 29/04/2026

@@ -8,5 +8,5 @@ This document contains the portfolio links for the DVA project team.
 | **Vipul** | [Portfolio Link](https://dva-portfolio-mocha.vercel.app/) |
 | **Om** | [Portfolio Link](https://) |
 | **Prince** | [Portfolio Link](https://princesingh2024.github.io/dva_resume_portfolio/) |
-| **Deepanshu** | [Portfolio Link](https://) |
+| **Deepanshu** | [Portfolio Link](https://deepanshu-sharma425.github.io/dva-portfolio/) |
 | **Kaustubj** | [Portfolio Link](https://) |

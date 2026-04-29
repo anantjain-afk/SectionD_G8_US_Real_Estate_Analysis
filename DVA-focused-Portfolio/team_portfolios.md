@@ -7,6 +7,6 @@ This document contains the portfolio links for the DVA project team.
 | **Anant** | [Portfolio Link](https://anantjain-afk.github.io/DVA_Resume_Portfolio/) |
 | **Vipul** | [Portfolio Link](https://dva-portfolio-mocha.vercel.app/) |
 | **Om** | [Portfolio Link](https://) |
-| **Prince** | [Portfolio Link](https://) |
+| **Prince** | [Portfolio Link](https://princesingh2024.github.io/dva_resume_portfolio/) |
 | **Deepanshu** | [Portfolio Link](https://) |
 | **Kaustubj** | [Portfolio Link](https://) |

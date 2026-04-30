@@ -411,7 +411,7 @@ The raw uncapped values are preserved in `Sale_Price` and `Living_Space_SqFt` fo
 
 This table must match evidence in GitHub Insights, PR history, and committed files.
 
-| Team Member | Dataset and Sourcing | ETL and Cleaning | EDA and Analysis | Statistical Analysis | Tableau Dashboard | Report Writing | PPT and Viva |
+| Team Member | Dataset and Sourcing | ETL and Cleaning | EDA and Analysis | Statistical Analysis | Tableau Dashboard | Report Writing | PPT |
 |---|---|---|---|---|---|---|---|
 | _`Anant Jain`_ | Owner | - | - | - | Owner | - | - |
 | _`Vipul Sharma`_ | Owner | Owner | Owner | - | - | - | - |

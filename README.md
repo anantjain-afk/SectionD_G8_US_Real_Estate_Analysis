@@ -36,7 +36,7 @@ Real Estate is the world's largest asset class, where **Price per Square Foot (P
 | Attribute | Details |
 |---|---|
 | **Source Name** | Zillow-style US Real Estate Listings (Scraped) |
-| **Direct Access Link** | _`Paste the direct download or access URL`_ |
+| **Direct Access Link** | _[https://www.kaggle.com/datasets/polartech/500000-us-homes-data-for-sale-properties](https://www.kaggle.com/datasets/polartech/500000-us-homes-data-for-sale-properties)_ |
 | **Row Count** | 600,000 (raw) → 80,000 (sampled) → 59,581 (final clean) |
 | **Column Count** | 28 (raw) → 19 (final clean, all meaningful) |
 | **Time Period Covered** | April 2022 (single scrape snapshot) |

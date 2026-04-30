@@ -8,11 +8,11 @@
 |---|---|
 | **Project Title** | US Real Estate Market Analysis & Data Integrity Pipeline |
 | **Sector** | Real Estate / PropTech |
-| **Team ID** | _`To be filled by team`_ |
-| **Section** | Section D — Group 8 |
-| **Faculty Mentor** | _`To be filled by team`_ |
+| **Team ID** | _Group 8_ |
+| **Section** | Section D |
+| **Faculty Mentor** | _Archit Raj_ |
 | **Institute** | Newton School of Technology |
-| **Submission Date** | _`To be filled by team`_ |
+| **Submission Date** | _29/04/2026_ |
 
 ---
 
